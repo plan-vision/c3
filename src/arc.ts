@@ -555,7 +555,7 @@ ChartInternal.prototype.redrawArc = function(
     .on(
       'mouseover',
       config.interaction_enabled
-        ? function(d) {
+        ? function(event,d) {
             var updated, arcData
             if ($$.transiting) {
               // skip while transiting
@@ -576,14 +576,14 @@ ChartInternal.prototype.redrawArc = function(
     .on(
       'mousemove',
       config.interaction_enabled
-        ? function(d) {
+        ? function(event,d) {
             var updated = $$.updateAngle(d),
               arcData,
               selectedData
             if (updated) {
               ;(arcData = $$.convertToArcData(updated)),
                 (selectedData = [arcData])
-              $$.showTooltip(selectedData, this)
+              $$.showTooltip(event,selectedData, this)
             }
           }
         : null
@@ -591,7 +591,7 @@ ChartInternal.prototype.redrawArc = function(
     .on(
       'mouseout',
       config.interaction_enabled
-        ? function(d) {
+        ? function(event,d) {
             var updated, arcData
             if ($$.transiting) {
               // skip while transiting
@@ -613,7 +613,9 @@ ChartInternal.prototype.redrawArc = function(
     .on(
       'click',
       config.interaction_enabled
-        ? function(d, i) {
+        ? function(event,d) {
+            var e = mainArc.nodes();
+            var i = e.indexOf(this);
             var updated = $$.updateAngle(d),
               arcData
             if (updated) {

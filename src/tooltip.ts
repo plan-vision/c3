@@ -214,14 +214,15 @@ ChartInternal.prototype.tooltipPosition = function(
   dataToShow,
   tWidth,
   tHeight,
-  element
+  element,
+  event
 ) {
   var $$ = this,
     config = $$.config,
     d3 = $$.d3
   var svgLeft, tooltipLeft, tooltipRight, tooltipTop, chartRight
   var forArc = $$.hasArcType(),
-    mouse = d3.mouse(element)
+    mouse = d3.pointer(event,element);
   // Determin tooltip position
   if (forArc) {
     tooltipLeft =
@@ -259,7 +260,7 @@ ChartInternal.prototype.tooltipPosition = function(
     left: tooltipLeft
   }
 }
-ChartInternal.prototype.showTooltip = function(selectedData, element) {
+ChartInternal.prototype.showTooltip = function(event,selectedData, element) {
   var $$ = this,
     config = $$.config
   var tWidth, tHeight, position
@@ -289,7 +290,7 @@ ChartInternal.prototype.showTooltip = function(selectedData, element) {
   tWidth = $$.tooltip.property('offsetWidth')
   tHeight = $$.tooltip.property('offsetHeight')
 
-  position = positionFunction.call(this, dataToShow, tWidth, tHeight, element)
+  position = positionFunction.call(this, dataToShow, tWidth, tHeight, element, event);
   // Set tooltip
   $$.tooltip
     .style('top', position.top + 'px')

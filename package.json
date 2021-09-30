@@ -56,10 +56,10 @@
   "gitHead": "84e03109d9a590f9c8ef687c03d751f666080c6f",
   "readmeFilename": "README.md",
   "dependencies": {
-    "d3": "^5.8.0"
+    "d3": "^7.0.4"
   },
   "devDependencies": {
-    "@types/d3": "^5.7.2",
+    "@types/d3": "^7.0.0",
     "@types/jasmine": "^3.5.10",
     "clean-css-cli": "^4.1.11",
     "codecov": "^3.0.4",

@@ -85,7 +85,7 @@ ChartInternal.prototype.redrawEventRect = function() {
     .on(
       'mousemove',
       config.interaction_enabled
-        ? function() {
+        ? function(event) {
             // do nothing when dragging
             if ($$.dragging) {
               return
@@ -98,7 +98,7 @@ ChartInternal.prototype.redrawEventRect = function() {
               return
             }
 
-            const mouse = d3.mouse(this)
+            const mouse = d3.pointer(event);
             const closest = withName(
               $$.findClosestFromTargets(targetsToShow, mouse)
             )
@@ -163,7 +163,7 @@ ChartInternal.prototype.redrawEventRect = function() {
             selectedData = selectedData.map(withName)
 
             // show tooltip
-            $$.showTooltip(selectedData, this)
+            $$.showTooltip(event,selectedData, this)
 
             // expand points
             if (config.point_focus_expand_enabled) {
@@ -187,14 +187,14 @@ ChartInternal.prototype.redrawEventRect = function() {
     .on(
       'click',
       config.interaction_enabled
-        ? function() {
+        ? function(event) {
             const targetsToShow = $$.getTargetsToShow()
 
             if ($$.hasArcType(targetsToShow)) {
               return
             }
 
-            const mouse = d3.mouse(this)
+            const mouse = d3.pointer(event);
             const closest = withName(
               $$.findClosestFromTargets(targetsToShow, mouse)
             )
@@ -244,11 +244,11 @@ ChartInternal.prototype.redrawEventRect = function() {
       config.interaction_enabled && config.data_selection_draggable && $$.drag
         ? d3
             .drag()
-            .on('drag', function() {
-              $$.drag(d3.mouse(this))
+            .on('drag', function(event) {
+              $$.drag(d3.pointer(event))
             })
-            .on('start', function() {
-              $$.dragstart(d3.mouse(this))
+            .on('start', function(event) {
+              $$.dragstart(d3.pointer(event))
             })
             .on('end', function() {
               $$.dragend()

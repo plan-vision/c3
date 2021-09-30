@@ -372,11 +372,11 @@ ChartInternal.prototype.updateLegend = function(
     .on(
       'click',
       config.interaction_enabled
-        ? function(id) {
+        ? function(event,id) {
             if (config.legend_item_onclick) {
               config.legend_item_onclick.call($$, id)
             } else {
-              if ($$.d3.event.altKey) {
+              if (event.altKey) {
                 $$.api.hide()
                 $$.api.show(id)
               } else {
@@ -390,7 +390,7 @@ ChartInternal.prototype.updateLegend = function(
     .on(
       'mouseover',
       config.interaction_enabled
-        ? function(id) {
+        ? function(event,id) {
             if (config.legend_item_onmouseover) {
               config.legend_item_onmouseover.call($$, id)
             } else {
@@ -405,7 +405,7 @@ ChartInternal.prototype.updateLegend = function(
     .on(
       'mouseout',
       config.interaction_enabled
-        ? function(id) {
+        ? function(event,id) {
             if (config.legend_item_onmouseout) {
               config.legend_item_onmouseout.call($$, id)
             } else {

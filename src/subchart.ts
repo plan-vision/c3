@@ -7,15 +7,15 @@ ChartInternal.prototype.initBrush = function(scale) {
     d3 = $$.d3
   // TODO: dynamically change brushY/brushX according to axis_rotated.
   $$.brush = ($$.config.axis_rotated ? d3.brushY() : d3.brushX())
-    .on('brush', function() {
-      var event = d3.event.sourceEvent
+    .on('brush', function(event) {
+      var event = event.sourceEvent
       if (event && event.type === 'zoom') {
         return
       }
       $$.redrawForBrush()
     })
-    .on('end', function() {
-      var event = d3.event.sourceEvent
+    .on('end', function(event) {
+      var event = event.sourceEvent
       if (event && event.type === 'zoom') {
         return
       }

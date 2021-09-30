@@ -9,24 +9,24 @@ ChartInternal.prototype.initZoom = function() {
 
   $$.zoom = d3
     .zoom()
-    .on('start', function() {
+    .on('start', function(event) {
       if (config.zoom_type !== 'scroll') {
         return
       }
 
-      var e = d3.event.sourceEvent
+      var e = event.sourceEvent
       if (e && e.type === 'brush') {
         return
       }
       startEvent = e
       config.zoom_onzoomstart.call($$.api, e)
     })
-    .on('zoom', function() {
+    .on('zoom', function(event) {
       if (config.zoom_type !== 'scroll') {
         return
       }
 
-      var e = d3.event.sourceEvent
+      var e = event.sourceEvent
       if (e && e.type === 'brush') {
         return
       }
@@ -35,12 +35,12 @@ ChartInternal.prototype.initZoom = function() {
 
       config.zoom_onzoom.call($$.api, $$.x.orgDomain())
     })
-    .on('end', function() {
+    .on('end', function(event) {
       if (config.zoom_type !== 'scroll') {
         return
       }
 
-      var e = d3.event.sourceEvent
+      var e = event.sourceEvent
       if (e && e.type === 'brush') {
         return
       }
@@ -55,13 +55,13 @@ ChartInternal.prototype.initZoom = function() {
       config.zoom_onzoomend.call($$.api, $$.x.orgDomain())
     })
 
-  $$.zoom.updateDomain = function() {
-    if (d3.event && d3.event.transform) {
-      if (config.axis_rotated && config.zoom_type === 'scroll' && d3.event.sourceEvent.type === 'mousemove') {
+  $$.zoom.updateDomain = function(event) {
+    if (event && event.transform) {
+      if (config.axis_rotated && config.zoom_type === 'scroll' && event.sourceEvent.type === 'mousemove') {
         // we're moving the mouse in a rotated chart with zoom = "scroll", so we need rescaleY (i.e. vertical)
-        $$.x.domain(d3.event.transform.rescaleY($$.subX).domain());
+        $$.x.domain(event.transform.rescaleY($$.subX).domain());
       } else {
-        $$.x.domain(d3.event.transform.rescaleX($$.subX).domain());
+        $$.x.domain(event.transform.rescaleX($$.subX).domain());
       }
     }
     return this
@@ -107,22 +107,22 @@ ChartInternal.prototype.initDragZoom = function() {
 
   const brush = ($$.dragZoomBrush = d3
     .brushX()
-    .on('start', () => {
+    .on('start', (event) => {
       $$.api.unzoom()
 
       $$.svg.select('.' + CLASS.dragZoom).classed('disabled', false)
 
-      config.zoom_onzoomstart.call($$.api, d3.event.sourceEvent)
+      config.zoom_onzoomstart.call($$.api, event.sourceEvent)
     })
-    .on('brush', () => {
-      config.zoom_onzoom.call($$.api, getZoomedDomain(d3.event.selection))
+    .on('brush', (event) => {
+      config.zoom_onzoom.call($$.api, getZoomedDomain(event.selection))
     })
-    .on('end', () => {
-      if (d3.event.selection == null) {
+    .on('end', (event) => {
+      if (event.selection == null) {
         return
       }
 
-      const zoomedDomain = getZoomedDomain(d3.event.selection)
+      const zoomedDomain = getZoomedDomain(event.selection)
 
       if (!config.zoom_disableDefaultBehavior) {
         $$.api.zoom(zoomedDomain)
@@ -180,7 +180,7 @@ ChartInternal.prototype.redrawForZoom = function() {
     withDimension: false
   })
 
-  if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mousemove') {
+  if (d3.event && d3.event.sourceEvent && d3.event.sourceEvent.type === 'mousemove') {
     $$.cancelClick = true
   }
 }
