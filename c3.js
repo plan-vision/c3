@@ -5380,7 +5380,7 @@
           return !$$.isGaugeType(d.data) && withTransform ? 'scale(0)' : '';
       })
           .on('mouseover', config.interaction_enabled
-          ? function (d) {
+          ? function (event, d) {
               var updated, arcData;
               if ($$.transiting) {
                   // skip while transiting
@@ -5398,17 +5398,17 @@
           }
           : null)
           .on('mousemove', config.interaction_enabled
-          ? function (d) {
+          ? function (event, d) {
               var updated = $$.updateAngle(d), arcData, selectedData;
               if (updated) {
                   (arcData = $$.convertToArcData(updated)),
                       (selectedData = [arcData]);
-                  $$.showTooltip(selectedData, this);
+                  $$.showTooltip(event, selectedData, this);
               }
           }
           : null)
           .on('mouseout', config.interaction_enabled
-          ? function (d) {
+          ? function (event, d) {
               var updated, arcData;
               if ($$.transiting) {
                   // skip while transiting
@@ -5427,7 +5427,9 @@
           }
           : null)
           .on('click', config.interaction_enabled
-          ? function (d, i) {
+          ? function (event, d) {
+              var e = mainArc.nodes();
+              var i = e.indexOf(this);
               var updated = $$.updateAngle(d), arcData;
               if (updated) {
                   arcData = $$.convertToArcData(updated);
@@ -8039,7 +8041,7 @@
           }
           : null)
           .on('mousemove', config.interaction_enabled
-          ? function () {
+          ? function (event) {
               // do nothing when dragging
               if ($$.dragging) {
                   return;
@@ -8049,7 +8051,7 @@
               if ($$.hasArcType(targetsToShow)) {
                   return;
               }
-              var mouse = d3.mouse(this);
+              var mouse = d3.pointer(event);
               var closest = withName($$.findClosestFromTargets(targetsToShow, mouse));
               var isMouseCloseToDataPoint = isHoveringDataPoint(mouse, closest);
               // ensure onmouseout is always called if mousemove switch between 2 targets
@@ -8100,7 +8102,7 @@
               // inject names for each point
               selectedData = selectedData.map(withName);
               // show tooltip
-              $$.showTooltip(selectedData, this);
+              $$.showTooltip(event, selectedData, this);
               // expand points
               if (config.point_focus_expand_enabled) {
                   $$.unexpandCircles();
@@ -8118,12 +8120,12 @@
           }
           : null)
           .on('click', config.interaction_enabled
-          ? function () {
+          ? function (event) {
               var targetsToShow = $$.getTargetsToShow();
               if ($$.hasArcType(targetsToShow)) {
                   return;
               }
-              var mouse = d3.mouse(this);
+              var mouse = d3.pointer(event);
               var closest = withName($$.findClosestFromTargets(targetsToShow, mouse));
               if (!isHoveringDataPoint(mouse, closest)) {
                   return;
@@ -8160,11 +8162,11 @@
           .call(config.interaction_enabled && config.data_selection_draggable && $$.drag
           ? d3
               .drag()
-              .on('drag', function () {
-              $$.drag(d3.mouse(this));
+              .on('drag', function (event) {
+              $$.drag(d3.pointer(event));
           })
-              .on('start', function () {
-              $$.dragstart(d3.mouse(this));
+              .on('start', function (event) {
+              $$.dragstart(d3.pointer(event));
           })
               .on('end', function () {
               $$.dragend();
@@ -8484,12 +8486,12 @@
           return config.interaction_enabled ? 'pointer' : 'auto';
       })
           .on('click', config.interaction_enabled
-          ? function (id) {
+          ? function (event, id) {
               if (config.legend_item_onclick) {
                   config.legend_item_onclick.call($$, id);
               }
               else {
-                  if ($$.d3.event.altKey) {
+                  if (event.altKey) {
                       $$.api.hide();
                       $$.api.show(id);
                   }
@@ -8501,7 +8503,7 @@
           }
           : null)
           .on('mouseover', config.interaction_enabled
-          ? function (id) {
+          ? function (event, id) {
               if (config.legend_item_onmouseover) {
                   config.legend_item_onmouseover.call($$, id);
               }
@@ -8514,7 +8516,7 @@
           }
           : null)
           .on('mouseout', config.interaction_enabled
-          ? function (id) {
+          ? function (event, id) {
               if (config.legend_item_onmouseout) {
                   config.legend_item_onmouseout.call($$, id);
               }
@@ -9933,15 +9935,15 @@
       var $$ = this, d3 = $$.d3;
       // TODO: dynamically change brushY/brushX according to axis_rotated.
       $$.brush = ($$.config.axis_rotated ? d3.brushY() : d3.brushX())
-          .on('brush', function () {
-          var event = d3.event.sourceEvent;
+          .on('brush', function (event) {
+          var event = event.sourceEvent;
           if (event && event.type === 'zoom') {
               return;
           }
           $$.redrawForBrush();
       })
-          .on('end', function () {
-          var event = d3.event.sourceEvent;
+          .on('end', function (event) {
+          var event = event.sourceEvent;
           if (event && event.type === 'zoom') {
               return;
           }
@@ -10985,10 +10987,10 @@
       }
       return text + '</table>';
   };
-  ChartInternal.prototype.tooltipPosition = function (dataToShow, tWidth, tHeight, element) {
+  ChartInternal.prototype.tooltipPosition = function (dataToShow, tWidth, tHeight, element, event) {
       var $$ = this, config = $$.config, d3 = $$.d3;
       var svgLeft, tooltipLeft, tooltipRight, tooltipTop, chartRight;
-      var forArc = $$.hasArcType(), mouse = d3.mouse(element);
+      var forArc = $$.hasArcType(), mouse = d3.pointer(event, element);
       // Determin tooltip position
       if (forArc) {
           tooltipLeft =
@@ -11027,7 +11029,7 @@
           left: tooltipLeft
       };
   };
-  ChartInternal.prototype.showTooltip = function (selectedData, element) {
+  ChartInternal.prototype.showTooltip = function (event, selectedData, element) {
       var $$ = this, config = $$.config;
       var tWidth, tHeight, position;
       var forArc = $$.hasArcType(), dataToShow = selectedData.filter(function (d) {
@@ -11043,7 +11045,7 @@
       // Get tooltip dimensions
       tWidth = $$.tooltip.property('offsetWidth');
       tHeight = $$.tooltip.property('offsetHeight');
-      position = positionFunction.call(this, dataToShow, tWidth, tHeight, element);
+      position = positionFunction.call(this, dataToShow, tWidth, tHeight, element, event);
       // Set tooltip
       $$.tooltip
           .style('top', position.top + 'px')
@@ -11172,33 +11174,33 @@
       var $$ = this, d3 = $$.d3, config = $$.config, startEvent;
       $$.zoom = d3
           .zoom()
-          .on('start', function () {
+          .on('start', function (event) {
           if (config.zoom_type !== 'scroll') {
               return;
           }
-          var e = d3.event.sourceEvent;
+          var e = event.sourceEvent;
           if (e && e.type === 'brush') {
               return;
           }
           startEvent = e;
           config.zoom_onzoomstart.call($$.api, e);
       })
-          .on('zoom', function () {
+          .on('zoom', function (event) {
           if (config.zoom_type !== 'scroll') {
               return;
           }
-          var e = d3.event.sourceEvent;
+          var e = event.sourceEvent;
           if (e && e.type === 'brush') {
               return;
           }
           $$.redrawForZoom();
           config.zoom_onzoom.call($$.api, $$.x.orgDomain());
       })
-          .on('end', function () {
+          .on('end', function (event) {
           if (config.zoom_type !== 'scroll') {
               return;
           }
-          var e = d3.event.sourceEvent;
+          var e = event.sourceEvent;
           if (e && e.type === 'brush') {
               return;
           }
@@ -11210,14 +11212,14 @@
           }
           config.zoom_onzoomend.call($$.api, $$.x.orgDomain());
       });
-      $$.zoom.updateDomain = function () {
-          if (d3.event && d3.event.transform) {
-              if (config.axis_rotated && config.zoom_type === 'scroll' && d3.event.sourceEvent.type === 'mousemove') {
+      $$.zoom.updateDomain = function (event) {
+          if (event && event.transform) {
+              if (config.axis_rotated && config.zoom_type === 'scroll' && event.sourceEvent.type === 'mousemove') {
                   // we're moving the mouse in a rotated chart with zoom = "scroll", so we need rescaleY (i.e. vertical)
-                  $$.x.domain(d3.event.transform.rescaleY($$.subX).domain());
+                  $$.x.domain(event.transform.rescaleY($$.subX).domain());
               }
               else {
-                  $$.x.domain(d3.event.transform.rescaleX($$.subX).domain());
+                  $$.x.domain(event.transform.rescaleX($$.subX).domain());
               }
           }
           return this;
@@ -11258,19 +11260,19 @@
       };
       var brush = ($$.dragZoomBrush = d3
           .brushX()
-          .on('start', function () {
+          .on('start', function (event) {
           $$.api.unzoom();
           $$.svg.select('.' + CLASS.dragZoom).classed('disabled', false);
-          config.zoom_onzoomstart.call($$.api, d3.event.sourceEvent);
+          config.zoom_onzoomstart.call($$.api, event.sourceEvent);
       })
-          .on('brush', function () {
-          config.zoom_onzoom.call($$.api, getZoomedDomain(d3.event.selection));
+          .on('brush', function (event) {
+          config.zoom_onzoom.call($$.api, getZoomedDomain(event.selection));
       })
-          .on('end', function () {
-          if (d3.event.selection == null) {
+          .on('end', function (event) {
+          if (event.selection == null) {
               return;
           }
-          var zoomedDomain = getZoomedDomain(d3.event.selection);
+          var zoomedDomain = getZoomedDomain(event.selection);
           if (!config.zoom_disableDefaultBehavior) {
               $$.api.zoom(zoomedDomain);
           }
@@ -11310,7 +11312,7 @@
           withEventRect: false,
           withDimension: false
       });
-      if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mousemove') {
+      if (d3.event && d3.event.sourceEvent && d3.event.sourceEvent.type === 'mousemove') {
           $$.cancelClick = true;
       }
   };
