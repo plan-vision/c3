@@ -33,3 +33,4 @@ package-lock.json
 # bundle
 .bundle/config
 vendor/bundle
+/.project
